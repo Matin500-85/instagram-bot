@@ -52,15 +52,12 @@ def send_welcome(message):
 • پشتیبانی از پست‌های چندرسانه‌ای
     """
     bot.reply_to(message, welcome_text, parse_mode='Markdown')
-    
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    """پاسخ به دستور /start"""
-    welcome_text = """
+    time.sleep(0.5)
+    welcome2 = """
 در صورت بروز خطا با پشتیبانی در ارتباط باشید👇👇
 @Matin500_85
     """
-    bot.reply_to(message, welcome_text)    
+    bot.reply_to(message, welcome_text)   
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
@@ -205,6 +202,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
