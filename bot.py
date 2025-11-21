@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # توکن از متغیر محیطی می‌خونیم
-TOKEN = "8501768865:AAEdy3p04gtoL9ih6zYEkpz7kG1VFcGeIN0"
+TOKEN = os.environ.get('BOT_TOKEN')
 
 if not TOKEN:
     logger.error("❌ توکن ربات پیدا نشد! مطمئن شوی BOT_TOKEN تنظیم شده")
@@ -196,3 +196,4 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
