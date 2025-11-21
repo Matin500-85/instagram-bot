@@ -57,7 +57,7 @@ def send_welcome(message):
 در صورت بروز خطا با پشتیبانی در ارتباط باشید👇👇
 @Matin500_85
     """
-    bot.reply_to(message, welcome_text)   
+    bot.reply_to(message, welcome2)   
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
