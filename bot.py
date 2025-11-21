@@ -50,9 +50,6 @@ def send_welcome(message):
 • ارسال کپشن کامل
 • اطلاعات پست (لایک، کاربر)
 • پشتیبانی از پست‌های چندرسانه‌ای
-
-در صورت بروز خطا با پشتیبانی در ارتباط باشید👇👇
-@Matin500_85
     """
     bot.reply_to(message, welcome_text, parse_mode='Markdown')
     
@@ -208,6 +205,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
