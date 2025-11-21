@@ -54,7 +54,7 @@ def send_welcome(message):
 در صورت بروز خطا با پشتیبانی در ارتباط باشید👇👇
 @Matin500_85
     """
-    bot.reply_to(message, welcome_text, parase_mode='HTML')
+    bot.reply_to(message, welcome_text, parse_mode='HTML')
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
@@ -199,6 +199,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
