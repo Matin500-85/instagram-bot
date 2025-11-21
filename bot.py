@@ -44,6 +44,12 @@ def send_welcome(message):
 📸 **پست‌ها** | 🎥 **ریلیزها** | 📱 **استوری‌ها**
 
 ✨ فقط لینک پست اینستاگرام رو برام بفرست!
+
+⚡️ **ویژگی‌ها:**
+• دانلود عکس و ویدئو
+• ارسال کپشن کامل
+• اطلاعات پست (لایک، کاربر)
+• پشتیبانی از پست‌های چندرسانه‌ای
     """
     bot.reply_to(message, welcome_text, parse_mode='Markdown')
 
@@ -59,6 +65,10 @@ def send_help(message):
 
 🔗 **مثال لینک:**
 https://www.instagram.com/p/Cxample123/
+💡 **نکات:**
+• فقط پست‌های public قابل دانلود هستند
+• پست‌های خصوصی نیاز به لاگین دارند
+• در صورت خطا، ۱۰ دقیقه صبر کنید
     """
     bot.reply_to(message, help_text, parse_mode='Markdown')
 
@@ -67,7 +77,6 @@ def handle_instagram_link(message):
     """مدیریت لینک‌های اینستاگرام"""
     user_message = message.text.strip()
     
-    # بررسی اینکه پیام لینک اینستاگرام هست
     if 'instagram.com' not in user_message:
         bot.reply_to(message, "❌ لطفاً فقط لینک معتبر اینستاگرام ارسال کن!")
         return
@@ -77,12 +86,24 @@ def handle_instagram_link(message):
         bot.reply_to(message, "❌ لینک معتبر نیست! مطمئن شو لینک رو درست کپی کردی")
         return
     
-    # اطلاع به کاربر
     processing_msg = bot.reply_to(message, "⏳ در حال دانلود... لطفاً صبر کن")
     
     try:
         # دانلود پست
         post = instaloader.Post.from_shortcode(L.context, shortcode)
+        
+        # ساخت کپشن پیشرفته (قبل از دانلود)
+        try:
+            if post.caption:
+                caption = f"📝 {post.caption}\n\n👤 {post.owner_username}\n❤️ {post.likes} لایک"
+            else:
+                caption = f"👤 {post.owner_username}\n❤️ {post.likes} لایک"
+            
+            # محدودیت کاراکتر تلگرام
+            caption = caption[:1024]
+        except Exception as e:
+            logger.error(f"خطا در خواندن کپشن: {e}")
+            caption = "Instagram Post"
         
         # ایجاد پوشه موقت برای دانلود
         download_dir = f"temp_{shortcode}"
@@ -101,40 +122,43 @@ def handle_instagram_link(message):
         
         # ارسال فایل‌ها به کاربر
         success_count = 0
-        for media_file in media_files:
+        for i, media_file in enumerate(media_files):
             file_path = os.path.join(download_dir, media_file)
             try:
+                # فقط برای اولین فایل کپشن بفرست
+                current_caption = caption if i == 0 else None
+                
                 if media_file.endswith('.mp4'):
                     with open(file_path, 'rb') as f:
-                        bot.send_video(message.chat.id, f, timeout=60)
+                        bot.send_video(message.chat.id, f, 
+                                     caption=current_caption,
+                                     timeout=60)
                         success_count += 1
                 else:
                     with open(file_path, 'rb') as f:
-                        bot.send_photo(message.chat.id, f, timeout=60)
+                        bot.send_photo(message.chat.id, f,
+                                     caption=current_caption,
+                                     timeout=60)
                         success_count += 1
                 
-                # تأثیر بین ارسال فایل‌ها
                 time.sleep(1)
                 
             except Exception as e:
                 logger.error(f"خطا در ارسال فایل {media_file}: {e}")
                 continue
             finally:
-                # پاک کردن فایل
                 if os.path.exists(file_path):
                     os.remove(file_path)
         
-        # پاک کردن پوشه
         if os.path.exists(download_dir):
             os.rmdir(download_dir)
-        
-        # اطلاع پایان کار
+# اطلاع پایان کار
         if success_count > 0:
-            bot.reply_to(message, f"✅ دانلود کامل شد! {success_count} فایل ارسال شد.")
+            final_msg = f"✅ **دانلود کامل شد!**\n\n📦 **{success_count} فایل ارسال شد**\n👤 **@{post.owner_username}**\n❤️ **{post.likes} لایک**"
+            bot.reply_to(message, final_msg, parse_mode='Markdown')
         else:
             bot.reply_to(message, "❌ خطا در ارسال فایل‌ها!")
         
-        # پاک کردن پیام "در حال دانلود"
         try:
             bot.delete_message(message.chat.id, processing_msg.message_id)
         except:
@@ -142,16 +166,22 @@ def handle_instagram_link(message):
             
     except Exception as e:
         logger.error(f"خطا در دانلود: {e}")
-        error_msg = f"""
-❌ خطا در دانلود!
-
-🔍 **دلایل احتمالی:**
-• پست خصوصی هست
-• لینک معتبر نیست
-• مشکل در اتصال به اینستاگرام
-
-📝 مطمئن شو پست public هست و لینک رو درست کپی کردی!
-        """
+        
+        # پیام‌های کاربرپسند
+        error_msg = "❌ خطا در دانلود! "
+        error_str = str(e).lower()
+        
+        if "login" in error_str or "private" in error_str:
+            error_msg += "این پست خصوصی هست"
+        elif "blocked" in error_str or "rate" in error_str:
+            error_msg += "محدودیت موقت! ۱۰ دقیقه صبر کن"
+        elif "not found" in error_str:
+            error_msg += "پست پیدا نشد"
+        elif "429" in error_str:
+            error_msg += "درخواست زیاد! کمی صبر کن"
+        else:
+            error_msg += "مطمئن شو پست public هست"
+        
         bot.reply_to(message, error_msg)
 
 if __name__ == "__main__":
@@ -159,6 +189,7 @@ if __name__ == "__main__":
     print("=" * 50)
     print("🤖 ربات دانلود از اینستاگرام")
     print("📍 فعال روی Railway")
+    print("⚡️ نسخه: پیشرفته با کپشن")
     print("=" * 50)
     
     try:
