@@ -59,6 +59,25 @@ def send_welcome(message):
     """
     bot.reply_to(message, welcome2)   
 
+@bot.message_handler(commands=['pay'])
+def send_pay(message):
+    """پاسخ به دستور /pay"""
+    pay_text = """
+🎉 **از حمایت شما سپاسگزاریم!**  
+
+ربات ما همواره با هدف ارائه خدمات رایگان توسعه یافته است. اگر تمایل دارید از ما حمایت مالی کنید، از لطف شما بی‌نهایت سپاسگزاریم.  
+
+💳 **شماره کارت برای حمایت مالی:**  
+`۶۱۰۴ ۳۳۷۳ ۶۴۶۲ ۱۵۱۴`
+(بانک ملت)
+
+💰 **آدرس ولت (TRC-20):**
+`UQDdZQ0Pbmm30Qb78pZ1Hct3Fuu4c0rEdcNwAlDqisBIb5cV`
+
+✨ **هر مبلغی که مقدور باشید، ارزشمند است.**
+    """
+    bot.reply_to(message, pay_text, parse_mode='Markdown')
+    
 @bot.message_handler(commands=['help'])
 def send_help(message):
     """پاسخ به دستور /help"""
@@ -202,6 +221,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
