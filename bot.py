@@ -272,9 +272,10 @@ if __name__ == "__main__":
     print("=" * 50)
     
     try:
-        bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True)
+        bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True , last_update_id=0)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
