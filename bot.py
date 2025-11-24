@@ -24,7 +24,7 @@ bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
 
 # for control
-execution_lock = threadin.Lock()
+execution_lock = threading.Lock()
 is_processing= False
 
 def extract_shortcode(instagram_url):
@@ -281,6 +281,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True )
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
