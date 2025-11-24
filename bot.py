@@ -189,7 +189,7 @@ def handle_instagram_link(message):
             caption = "Instagram Post"
         
         # ایجاد پوشه موقت برای دانلود
-        download_dir = f"temp_{shortcode}_{message.from_user.id}"
+        download_dir = f"temp_{shortcode}"
         os.makedirs(download_dir, exist_ok=True)
         
         # دانلود محتوا
@@ -281,6 +281,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True )
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
