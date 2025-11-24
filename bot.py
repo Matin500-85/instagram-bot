@@ -35,67 +35,105 @@ def extract_shortcode(instagram_url):
         logger.error(f"خطا در استخراج shortcode: {e}")
         return None
 
-@bot.message_handler(commands=['start'])
-def send_welcome(message):
-    """پاسخ به دستور /start"""
-    welcome_text = """
-🤖 **ربات دانلود از اینستاگرام**
+def create_main_menu():
+    """تابع مادر برای ساخت منوی اصلی"""
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    
+    btn_help = types.InlineKeyboardButton("📖 راهنما", callback_data='show_help')
+    btn_start = types.InlineKeyboardButton("🏠 شروع", callback_data='show_start')
+    btn_pay = types.InlineKeyboardButton("حمایت مالی 💰", callback_data='show_pay')
+    markup.add(btn_help, btn_start)
+    return markup
 
-📸 **پست‌ها** | 🎥 **ریلیزها** | 📱 **استوری‌ها**
+def get_welcome_text1():
+    return """
+🤖 *ربات دانلود از اینستاگرام*
+
+📸 *پست‌ها* | 🎥 *ریلیزها* | 📱 *استوری‌ها*
 
 ✨ فقط لینک پست اینستاگرام رو برام بفرست!
 
-⚡️ **ویژگی‌ها:**
+⚡️ *ویژگی‌ها:*
 • دانلود عکس و ویدئو
 • ارسال کپشن کامل
 • اطلاعات پست (لایک، کاربر)
-• پشتیبانی از پست‌های چندرسانه‌ای
+• پشتیبانی از پست‌های چندرسانه‌ای  
     """
-    bot.reply_to(message, welcome_text, parse_mode='Markdown')
-    time.sleep(0.5)
-    welcome2 = """
+def get_welcome_text2():
+    return """
 در صورت بروز خطا با پشتیبانی در ارتباط باشید👇👇
 @Matin500_85
     """
-    bot.reply_to(message, welcome2)   
-
-@bot.message_handler(commands=['pay'])
-def send_pay(message):
-    """پاسخ به دستور /pay"""
-    pay_text = """
-🎉 **از حمایت شما سپاسگزاریم!**  
+def get_pay_text():
+    return """
+🎉 *از حمایت شما سپاسگزاریم!*  
 
 ربات ما همواره با هدف ارائه خدمات رایگان توسعه یافته است. اگر تمایل دارید از ما حمایت مالی کنید، از لطف شما بی‌نهایت سپاسگزاریم.  
 
-💳 **شماره کارت برای حمایت مالی:**  
+💳 *شماره کارت برای حمایت مالی:*  
 `6104 3373 6462 1514`
 (بانک ملت)
 
-💰 **آدرس ولت (TRC-20):**
+💰 *آدرس ولت (TRC-20):*
 `UQDdZQ0Pbmm30Qb78pZ1Hct3Fuu4c0rEdcNwAlDqisBIb5cV`
 
-✨ **هر مبلغی که مقدور باشید، ارزشمند است.**
-    """
-    bot.reply_to(message, pay_text, parse_mode='Markdown')
+✨ *هر مبلغی که مقدور باشید، ارزشمند است.*
     
-@bot.message_handler(commands=['help'])
-def send_help(message):
-    """پاسخ به دستور /help"""
-    help_text = """
-📖 **راهنما:**
+    """
+def get_help_text():
+    return """
+📖 *راهنما:*
 
 1. لینک پست اینستاگرام رو کپی کن
 2. برای ربات بفرست
 3. منتظر دانلود باش!
 
-🔗 **مثال لینک:**
+🔗 *مثال لینک:*
 https://www.instagram.com/p/Cxample123/
-💡 **نکات:**
+💡 *نکات:*
 • فقط پست‌های public قابل دانلود هستند
 • پست‌های خصوصی نیاز به لاگین دارند
 • در صورت خطا، ۱۰ دقیقه صبر کنید
     """
-    bot.reply_to(message, help_text, parse_mode='Markdown')
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    """پاسخ به دستور /start"""
+    bot.reply_to(message, get_welcome_text1(), parse_mode='Markdown')
+    time.sleep(0.5)
+    bot.reply_to(message, get_welcome_text2(), reply_markup=create_main_menu())   
+
+@bot.message_handler(commands=['pay'])
+def send_pay(message):
+    """پاسخ به دستور /pay"""
+    bot.reply_to(message, get_pay_text(), reply_markup=create_main_menu(), parse_mode='Markdown')
+    
+@bot.message_handler(commands=['help'])
+def send_help(message):
+    """پاسخ به دستور /help"""
+    bot.reply_to(message, get_help_text(), reply_markup=create_main_menu(), parse_mode='Markdown')
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def handle_inline_clicks(call):
+    if call.data == 'show_start':
+        # پیام اول
+        bot.send_message(call.message.chat.id, get_welcome_text1(), parse_mode='Markdown')
+        # صبر نیم ثانیه
+        time.sleep(0.5)
+        # پیام دوم با دکمه‌ها
+        bot.send_message(
+            call.message.chat.id, 
+            get_welcome_text2(), 
+            reply_markup=create_main_menu()
+        )
+    elif call.data == 'show_pay':
+        bot.send_message(call.message.chat.id, get_pay_text(), reply_markup=create_main_menu(), parse_mode='Markdown')
+    elif call.data == 'show_help':
+        bot.send_message(call.message.chat.id, get_help_text(), reply_markup=create_main_menu(), parse_mode='Markdown')
+    
+    bot.answer_callback_query(call.id)
+
 
 @bot.message_handler(func=lambda message: True)
 def handle_instagram_link(message):
@@ -221,6 +259,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
