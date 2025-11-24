@@ -44,9 +44,9 @@ def create_main_menu():
     """تابع مادر برای ساخت منوی اصلی"""
     markup = types.InlineKeyboardMarkup(row_width=2)
     buttons={
-        "start" = types.InlineKeyboardButton("🏠 شروع", callback_data='show_start')
-        "pay" = types.InlineKeyboardButton("حمایت مالی 💰", callback_data='show_pay')
-        "help" = types.InlineKeyboardButton("📖 راهنما", callback_data='show_help')
+        "start" : types.InlineKeyboardButton("🏠 شروع", callback_data='show_start')
+        "pay" : types.InlineKeyboardButton("حمایت مالی 💰", callback_data='show_pay')
+        "help" : types.InlineKeyboardButton("📖 راهنما", callback_data='show_help')
     }
     for btn in allowed_buttons:
         if btn in buttons:
@@ -275,6 +275,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
