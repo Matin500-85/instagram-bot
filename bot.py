@@ -197,7 +197,9 @@ def handle_instagram_link(message):
         
         # پیدا کردن فایل‌های دانلود شده
         files = os.listdir(download_dir)
-        media_files = [f for f in files if f.endswith(('.mp4', '.jpg', '.jpeg'))]
+        video_files = [f for f in files if f.endswit('.mp4')]
+        image_files = [f for f in files if f.endswith(('.jpg', '.jpeg'))]
+        media_files = video_files + image_files
         
         if not media_files:
             bot.reply_to(message, "❌ محتوایی برای دانلود پیدا نشد!")
@@ -210,6 +212,9 @@ def handle_instagram_link(message):
             try:
                 # فقط برای اولین فایل کپشن بفرست
                 current_caption = caption if i == 0 else None
+
+                if (media_file.endwith(('.jpg','.jpeg')) and media_file.replace(('.jpg','.mp4')).replace('.jpeg','.mp4') in video_files):
+                    current_caption="🏞کاور ویدیو"
                 
                 if media_file.endswith('.mp4'):
                     with open(file_path, 'rb') as f:
@@ -282,6 +287,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
         exit(1)
+
 
 
 
