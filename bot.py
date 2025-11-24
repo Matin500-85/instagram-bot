@@ -2,6 +2,7 @@ import os
 import logging
 import instaloader
 import telebot
+import threading
 import time
 from telebot import types
 
@@ -22,6 +23,9 @@ if not TOKEN:
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
 
+# for control
+execution_lock = threadin.Lock()
+is_processing= False
 
 def extract_shortcode(instagram_url):
     """استخراج shortcode از لینک اینستاگرام"""
@@ -272,9 +276,12 @@ if __name__ == "__main__":
     print("=" * 50)
     
     try:
-        bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True , last_update_id=0)
+        bot.remove_webhook()
+        time.sleep(1)
+        bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True )
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
