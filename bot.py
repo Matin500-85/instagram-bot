@@ -177,7 +177,8 @@ def handle_instagram_link(message):
         # ساخت کپشن پیشرفته (قبل از دانلود)
         try:
             if post.caption:
-                caption = f"📝 {post.caption}\n\n👤 {post.owner_username}\n❤️ {post.likes} لایک"
+                trimmed_caption=post.caption[:960]
+                caption = f"📝 {trimmed_caption}\n\n👤 {post.owner_username}\n❤️ {post.likes} لایک"
             else:
                 caption = f"👤 {post.owner_username}\n❤️ {post.likes} لایک"
             
@@ -280,6 +281,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True )
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
