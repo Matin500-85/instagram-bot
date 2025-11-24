@@ -5,20 +5,23 @@ import telebot
 import time
 from telebot import types
 
+
 # تنظیمات لاگ
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 # توکن از متغیر محیطی می‌خونیم
 TOKEN = "8501768865:AAEdy3p04gtoL9ih6zYEkpz7kG1VFcGeIN0"
-
 if not TOKEN:
     logger.error("❌ توکن ربات پیدا نشد! مطمئن شوی BOT_TOKEN تنظیم شده")
     exit(1)
 
+
 # ساخت ربات
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
+
 
 def extract_shortcode(instagram_url):
     """استخراج shortcode از لینک اینستاگرام"""
@@ -36,15 +39,21 @@ def extract_shortcode(instagram_url):
         logger.error(f"خطا در استخراج shortcode: {e}")
         return None
 
+
 def create_main_menu():
     """تابع مادر برای ساخت منوی اصلی"""
-    markup = types.InlineKeyboardMarkup(row_width=3)
-    
-    btn_help = types.InlineKeyboardButton("📖 راهنما", callback_data='show_help')
-    btn_start = types.InlineKeyboardButton("🏠 شروع", callback_data='show_start')
-    btn_pay = types.InlineKeyboardButton("حمایت مالی 💰", callback_data='show_pay')
-    markup.add(btn_help, btn_start,btn_pay)
+    markup = types.InlineKeyboardMarkup(row_width=2)
+    buttons={
+        "start" = types.InlineKeyboardButton("🏠 شروع", callback_data='show_start')
+        "pay" = types.InlineKeyboardButton("حمایت مالی 💰", callback_data='show_pay')
+        "help" = types.InlineKeyboardButton("📖 راهنما", callback_data='show_help')
+    }
+    for btn in allowed_buttons:
+        if btn in buttons:
+            markup.add(buttons[btn])
+            
     return markup
+
 
 def get_welcome_text1():
     return """
@@ -60,11 +69,14 @@ def get_welcome_text1():
 • اطلاعات پست (لایک، کاربر)
 • پشتیبانی از پست‌های چندرسانه‌ای  
     """
+
 def get_welcome_text2():
     return """
 در صورت بروز خطا با پشتیبانی در ارتباط باشید👇👇
 @Matin500_85
     """
+
+
 def get_pay_text():
     return """
 🎉 *از حمایت شما سپاسگزاریم!*  
@@ -79,8 +91,9 @@ def get_pay_text():
 `UQDdZQ0Pbmm30Qb78pZ1Hct3Fuu4c0rEdcNwAlDqisBIb5cV`
 
 ✨ *هر مبلغی که مقدور باشید، ارزشمند است.*
-    
     """
+
+
 def get_help_text():
     return """
 📖 *راهنما:*
@@ -97,22 +110,24 @@ https://www.instagram.com/p/Cxample123/
 • در صورت خطا، ۱۰ دقیقه صبر کنید
     """
 
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     """پاسخ به دستور /start"""
     bot.reply_to(message, get_welcome_text1(), parse_mode='Markdown')
     time.sleep(0.5)
-    bot.reply_to(message, get_welcome_text2(), reply_markup=create_main_menu())   
+    bot.reply_to(message, get_welcome_text2(), reply_markup=create_main_menu([btn for btn in all_buttons if !='start']))   
+
 
 @bot.message_handler(commands=['pay'])
 def send_pay(message):
     """پاسخ به دستور /pay"""
-    bot.reply_to(message, get_pay_text(), reply_markup=create_main_menu(), parse_mode='Markdown')
+    bot.reply_to(message, get_pay_text(), reply_markup=create_main_menu([btn for btn in all_buttons if !='pay']), parse_mode='Markdown')
     
 @bot.message_handler(commands=['help'])
 def send_help(message):
     """پاسخ به دستور /help"""
-    bot.reply_to(message, get_help_text(), reply_markup=create_main_menu(), parse_mode='Markdown')
+    bot.reply_to(message, get_help_text(), reply_markup=create_main_menu([btn for btn in all_buttons if !='help']), parse_mode='Markdown')
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -126,12 +141,12 @@ def handle_inline_clicks(call):
         bot.send_message(
             call.message.chat.id, 
             get_welcome_text2(), 
-            reply_markup=create_main_menu()
+            reply_markup=create_main_menu([btn for btn in all_buttons if !='start'])
         )
     elif call.data == 'show_pay':
-        bot.send_message(call.message.chat.id, get_pay_text(), reply_markup=create_main_menu(), parse_mode='Markdown')
+        bot.send_message(call.message.chat.id, get_pay_text(), reply_markup=create_main_menu([btn for btn in all_buttons if !='pay']), parse_mode='Markdown')
     elif call.data == 'show_help':
-        bot.send_message(call.message.chat.id, get_help_text(), reply_markup=create_main_menu(), parse_mode='Markdown')
+        bot.send_message(call.message.chat.id, get_help_text(), reply_markup=create_main_menu([btn for btn in all_buttons if !='help']), parse_mode='Markdown')
     
     bot.answer_callback_query(call.id)
 
@@ -260,6 +275,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
