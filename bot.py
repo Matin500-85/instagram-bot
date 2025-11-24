@@ -40,7 +40,7 @@ def extract_shortcode(instagram_url):
         return None
 
 
-def create_main_menu():
+def create_main_menu(allowed_buttons=['start','pay','help']):
     """تابع مادر برای ساخت منوی اصلی"""
     markup = types.InlineKeyboardMarkup(row_width=2)
     buttons={
@@ -275,6 +275,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
