@@ -279,12 +279,14 @@ if __name__ == "__main__":
     print("📍 فعال روی Railway")
     print("⚡️ نسخه: پیشرفته با کپشن")
     print("=" * 50)
+    time.sleep(30)
     try:
         bot.remove_webhook()
         time.sleep(1)
         bot.polling(none_stop=True, interval=2, timeout=60 , skip_pending=True )
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
