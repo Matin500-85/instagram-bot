@@ -3,6 +3,7 @@ import logging
 import instaloader
 import telebot
 import time
+from telebot import types
 
 # تنظیمات لاگ
 logging.basicConfig(level=logging.INFO)
@@ -259,6 +260,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
