@@ -38,12 +38,12 @@ def extract_shortcode(instagram_url):
 
 def create_main_menu():
     """تابع مادر برای ساخت منوی اصلی"""
-    markup = types.InlineKeyboardMarkup(row_width=2)
+    markup = types.InlineKeyboardMarkup(row_width=3)
     
     btn_help = types.InlineKeyboardButton("📖 راهنما", callback_data='show_help')
     btn_start = types.InlineKeyboardButton("🏠 شروع", callback_data='show_start')
     btn_pay = types.InlineKeyboardButton("حمایت مالی 💰", callback_data='show_pay')
-    markup.add(btn_help, btn_start)
+    markup.add(btn_help, btn_start,btn_pay)
     return markup
 
 def get_welcome_text1():
@@ -260,6 +260,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True)
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
