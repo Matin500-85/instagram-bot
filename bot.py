@@ -27,21 +27,6 @@ L = instaloader.Instaloader()
 execution_lock = threading.Lock()
 is_processing= False
 
-def extract_shortcode(instagram_url):
-    """استخراج shortcode از لینک اینستاگرام"""
-    try:
-        if '/p/' in instagram_url:
-            return instagram_url.split('/p/')[1].split('/')[0]
-        elif '/reel/' in instagram_url:
-            return instagram_url.split('/reel/')[1].split('/')[0]
-        elif '/stories/' in instagram_url:
-            parts = instagram_url.split('/stories/')[1].split('/')
-            return parts[1] if len(parts) > 1 else None
-        else:
-            return None
-    except Exception as e:
-        logger.error(f"خطا در استخراج shortcode: {e}")
-        return None
 
 
 def create_main_menu(allowed_buttons=['start','pay','help']):
@@ -54,8 +39,7 @@ def create_main_menu(allowed_buttons=['start','pay','help']):
     }
     for btn in allowed_buttons:
         if btn in buttons:
-            markup.add(buttons[btn])
-            
+            markup.add(buttons[btn])      
     return markup
 
 
@@ -127,7 +111,8 @@ def send_welcome(message):
 def send_pay(message):
     """پاسخ به دستور /pay"""
     bot.reply_to(message, get_pay_text(), reply_markup=create_main_menu(['start','help']), parse_mode='Markdown')
-    
+
+
 @bot.message_handler(commands=['help'])
 def send_help(message):
     """پاسخ به دستور /help"""
@@ -142,17 +127,31 @@ def handle_inline_clicks(call):
         # صبر نیم ثانیه
         time.sleep(0.5)
         # پیام دوم با دکمه‌ها
-        bot.send_message(
-            call.message.chat.id, 
-            get_welcome_text2(), 
-            reply_markup=create_main_menu(['pay','help'])
-        )
+        bot.send_message(call.message.chat.id, get_welcome_text2(), reply_markup=create_main_menu(['pay','help']))
     elif call.data == 'show_pay':
         bot.send_message(call.message.chat.id, get_pay_text(), reply_markup=create_main_menu(['start','help']), parse_mode='Markdown')
     elif call.data == 'show_help':
         bot.send_message(call.message.chat.id, get_help_text(), reply_markup=create_main_menu(['start','pay']), parse_mode='Markdown')
     
     bot.answer_callback_query(call.id)
+
+
+def extract_shortcode(instagram_url):
+    """استخراج shortcode از لینک اینستاگرام"""
+    try:
+        if '/p/' in instagram_url:
+            return instagram_url.split('/p/')[1].split('/')[0]
+        elif '/reel/' in instagram_url:
+            return instagram_url.split('/reel/')[1].split('/')[0]
+        elif '/stories/' in instagram_url:
+            parts = instagram_url.split('/stories/')[1].split('/')
+            return parts[1] if len(parts) > 1 else None
+        else:
+            return None
+    except Exception as e:
+        logger.error(f"خطا در استخراج shortcode: {e}")
+        return None
+
 
 
 @bot.message_handler(func=lambda message: True)
@@ -281,6 +280,7 @@ if __name__ == "__main__":
         bot.polling(none_stop=True, interval=2, timeout=30 , skip_pending=True )
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
+
 
 
 
