@@ -11,6 +11,14 @@ from telebot import types
 
 
 
+# توکن از متغیر محیطی می‌خونیم
+TOKEN = os.environ.get('BOT_TOKEN')
+if not TOKEN:
+    logger.error("❌ توکن ربات پیدا نشد! مطمئن شوی BOT_TOKEN تنظیم شده")
+    exit(1)
+
+
+
 # تنظیمات لاگ
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,20 +35,13 @@ def user_log(user, message, level='info'):
 
 
 
-# توکن از متغیر محیطی می‌خونیم
-TOKEN = os.environ.get('BOT_TOKEN')
-if not TOKEN:
-    logger.error("❌ توکن ربات پیدا نشد! مطمئن شوی BOT_TOKEN تنظیم شده")
-    exit(1)
-
-
 # ساخت ربات
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
 L.request_timeout = 30
 
 # for control
-processing = set()
+processing_users = set()
 user_request= defaultdict(list)
 
 def check_rate_limit(user_id, limit=3, window=60):
@@ -368,6 +369,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
