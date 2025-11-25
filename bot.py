@@ -13,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 # توکن از متغیر محیطی می‌خونیم
-logger.info("task1")
-TOKEN = os.environ.get('BOT_TOKEN')
-logger.info("task2")
+TOKEN = (
+    os.environ.get('BOT_TOKEN') or
+    os.environ.get('TELEGRAM')
+)
 if not TOKEN:
-    logger.info("task3")
     logger.error("❌ توکن ربات پیدا نشد! مطمئن شوی BOT_TOKEN تنظیم شده")
     exit(1)
 
@@ -296,6 +296,7 @@ if __name__ == "__main__":
     except Exception as error:
         logger.error(f"خطا در اجرای ربات: {error}")
         time.sleep(10)
+
 
 
 
