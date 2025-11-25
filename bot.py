@@ -23,7 +23,7 @@ if not TOKEN:
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
 L.requset_timeout = 30
-L.context._session.header.update({
+L.context._session.headers.update({
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 })
 
@@ -299,6 +299,7 @@ if __name__ == "__main__":
     except Exception as error:
         logger.error(f"خطا در اجرای ربات: {error}")
         time.sleep(10)
+
 
 
 
