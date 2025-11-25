@@ -3,8 +3,12 @@ import logging
 import instaloader
 import telebot
 import threading
+import re
 import time
+from collections import defauultdict
 from telebot import types
+
+
 
 
 # تنظیمات لاگ
@@ -36,9 +40,23 @@ L = instaloader.Instaloader()
 L.request_timeout = 30
 
 # for control
-execution_lock = threading.Lock()
-is_processing= False
+processing = set()
+user_request= defaultict(list)
 
+def check_rate_limit(user_id, limit=3, window=60):
+    current_time = time.time()
+    
+    # فقط درخواست‌های کاربر فعلی
+    user_requests[user_id] = [
+        t for t in user_requests[user_id] 
+        if current_time - t < window
+    ]
+    
+    if len(user_requests[user_id]) >= limit:
+        return False
+    
+    user_requests[user_id].append(current_time)
+    return True
 
 
 def create_main_menu(allowed_buttons=['start','pay','help']):
@@ -152,6 +170,12 @@ def handle_inline_clicks(call):
     bot.answer_callback_query(call.id)
 
 
+def is_valid_instagram_url(url):
+    """بررسی معتبر بودن لینک اینستاگرام"""
+    pattern = r'^https?://(www\.)?instagram\.com/(p|reel|stories)/[a-zA-Z0-9_-]+/?.*$'
+    return bool(re.match(pattern, url.strip()))
+
+
 def extract_shortcode(instagram_url):
     """استخراج shortcode از لینک اینستاگرام"""
     try:
@@ -173,25 +197,47 @@ def extract_shortcode(instagram_url):
 @bot.message_handler(func=lambda message: True)
 def handle_instagram_link(message):
     """مدیریت لینک‌های اینستاگرام"""
-    user = message.from_user
-    user_log(user, f"ارسال لینک: {message.text[:30]}...")
-
-
-    user_message = message.text.strip()
+    user_id = message.from_user.id
     
-    if 'instagram.com' not in user_message:
-        user_log(user, "ارسال لینک غیر اینستاگرام", 'warning')
-        bot.reply_to(message, "❌ لطفاً فقط لینک معتبر اینستاگرام ارسال کن!")
+    # چک کن اگر کاربر در حال پردازش هست
+    if user_id in processing_users:
+        bot.reply_to(message, "⏳ در حال پردازش درخواست قبلی شما... لطفاً صبر کنید")
         return
     
-    shortcode = extract_shortcode(user_message)
-    if not shortcode:
-        user_log(user, "لینک معتبر نیست", 'warning')
-        bot.reply_to(message, "❌ لینک معتبر نیست! مطمئن شو لینک رو درست کپی کردی")
-        return
-    
-    processing_msg = bot.reply_to(message, "⏳ در حال دانلود... لطفاً صبر کن")
-    user_log(user, f"شروع دانلود برای shortcode: {shortcode}")
+    try:
+        # کاربر رو به لیست اضافه کن
+        processing_users.add(user_id)
+        
+        user = message.from_user
+        user_log(user, f"ارسال لینک: {message.text[:30]}...")
+
+        user_message = message.text.strip()
+
+        if not is_valid_instagram_url(user_message):
+            user_log(user, "ارسال لینک غیر اینستاگرام", 'warning')
+            bot.reply_to(message, "❌ لطفاً فقط لینک معتبر اینستاگرام ارسال کن!")
+            return
+
+        if not check_rate_limit(user_id, limit=3, window=60):
+            user_log(user, "محدودیت نرخ درخواست", 'warning')
+            bot.reply_to(message, "🚫 تعداد درخواست‌های شما زیاد است! لطفاً ۱ دقیقه صبر کنید.")
+            return
+
+
+        shortcode = extract_shortcode(user_message)
+        if not shortcode:
+            user_log(user, "لینک معتبر نیست", 'warning')
+            bot.reply_to(message, "❌ لینک معتبر نیست! مطمئن شو لینک رو درست کپی کردی")
+            return
+
+        processing_msg = bot.reply_to(message, "⏳ در حال دانلود... لطفاً صبر کن")
+        user_log(user, f"شروع دانلود برای shortcode: {shortcode}")
+        
+        
+    finally:
+        # کاربر رو از لیست حذف کن حتی اگر خطا اتفاق افتاد
+        if user_id in processing_users:
+            processing_users.remove(user_id)
 
     try:
         # دانلود پست
@@ -322,6 +368,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
