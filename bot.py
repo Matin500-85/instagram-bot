@@ -41,7 +41,7 @@ L.request_timeout = 30
 
 # for control
 processing = set()
-user_request= defaultict(list)
+user_request= defaultdict(list)
 
 def check_rate_limit(user_id, limit=3, window=60):
     current_time = time.time()
@@ -368,6 +368,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
