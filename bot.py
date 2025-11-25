@@ -5,8 +5,20 @@ import telebot
 import threading
 import re
 import time
+import random
 from collections import defaultdict
 from telebot import types
+
+
+
+USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", 
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/120.0"
+]
+
 
 
 
@@ -37,12 +49,18 @@ def user_log(user, message, level='info'):
 
 # ساخت ربات
 bot = telebot.TeleBot(TOKEN)
-L = instaloader.Instaloader()
-L.request_timeout = 30
-try:
-    L.load_session_from_file('YOUR_INSTAGRAM_USERNAME')  # یوزرنیم اینستاگرام بدون @
-except Exception as e:
-    logger.warning(f"Could not load session: {e}")
+L = instaloader.Instaloader(
+    sleep=True,                           # تاخیر بین درخواست‌ها
+    sleep_interval=10,                    # ۱۰ ثانیه تاخیر
+    user_agent=random.choice(USER_AGENTS), # انتخاب تصادفی User-Agent
+    request_timeout=60,                   # timeout بیشتر
+    max_connection_attempts=2,            # تعداد تلاش کمتر
+    download_comments=False,              # عدم دانلود کامنت‌ها
+    save_metadata=False,                  # عدم ذخیره متادیتا
+    post_metadata_txt_pattern="",         # غیرفعال کردن ذخیره متادیتا
+    compress_json=False                   # غیرفعال کردن فشرده‌سازی
+)
+
 
 
 # for control
@@ -238,6 +256,14 @@ def handle_instagram_link(message):
 
         processing_msg = bot.reply_to(message, "⏳ در حال دانلود... لطفاً صبر کن")
         user_log(user, f"شروع دانلود برای shortcode: {shortcode}")
+
+        # ✅ تاخیر تصادفی برای جلوگیری از تشخیص ربات
+        delay = random.randint(2, 5)  # 2 تا 5 ثانیه تاخیر
+        time.sleep(delay)
+        
+        # ✅ تغییر User-Agent برای هر درخواست
+        L.context.user_agent = random.choice(USER_AGENTS)
+
         
         
     finally:
@@ -374,6 +400,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
