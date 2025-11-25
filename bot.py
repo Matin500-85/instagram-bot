@@ -240,7 +240,7 @@ def handle_instagram_link(message):
         
         if os.path.exists(download_dir):
             os.rmdir(download_dir)
-# اطلاع پایان کار
+        # اطلاع پایان کار
         if success_count > 0:
             final_msg = f"✅ **دانلود کامل شد!**\n\n📦 **{success_count} فایل ارسال شد**\n👤 **@{post.owner_username}**\n❤️ **{post.likes} لایک**"
             bot.reply_to(message, final_msg, parse_mode='Markdown')
@@ -286,6 +286,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
         time.sleep(10)
+
 
 
 
