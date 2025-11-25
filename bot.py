@@ -39,6 +39,11 @@ def user_log(user, message, level='info'):
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
 L.request_timeout = 30
+try:
+    L.load_session_from_file('YOUR_INSTAGRAM_USERNAME')  # یوزرنیم اینستاگرام بدون @
+except Exception as e:
+    logger.warning(f"Could not load session: {e}")
+
 
 # for control
 processing_users = set()
@@ -369,6 +374,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
