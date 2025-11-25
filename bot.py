@@ -237,18 +237,14 @@ def handle_instagram_link(message):
             finally:
                 if os.path.exists(file_path):
                     os.remove(file_path)
-            bot.send_message(message.chat.id,"that worked1")
-        bot.send_message(message.chat.id,"that worked1b")
-        """
+        
+        
         if os.path.exists(download_dir):
-            bot.send_message(message.chat.id,"that worked1c")
-            shutil.rmtree(download_dir, ignore_errors=True)
-            bot.send_message(message.chat.id,"that worked1d")
-            """
-        bot.send_message(message.chat.id,"that worked2")
+            import subprocess
+            shubprocess.run(['rm','-rf',download_dir], check=True)
+            
         # اطلاع پایان کار
         if success_count > 0:
-            bot.send_message(message.chat.id,"that worked3")
             final_msg = f"✅ **دانلود کامل شد!**\n\n📦 **{success_count} فایل ارسال شد**\n👤 **@{post.owner_username}**\n❤️ **{post.likes} لایک**"
             bot.reply_to(message, final_msg, parse_mode='Markdown')
         else:
@@ -294,6 +290,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
         time.sleep(10)
+
 
 
 
