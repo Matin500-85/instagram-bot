@@ -251,13 +251,15 @@ def handle_instagram_link(message):
             bot.send_message(message.chat.id,"that worked3a")
             bot.reply_to(message, "❌ خطا در ارسال فایل‌ها!")
         
+        
+            
+    except Exception as e:
+        logger.error(f"خطا در دانلود: {e}")
+    finally:
         try:
             bot.delete_message(message.chat.id, processing_msg.message_id)
         except:
             pass
-            
-    except Exception as e:
-        logger.error(f"خطا در دانلود: {e}")
         
         # پیام‌های کاربرپسند
         error_msg = "❌ خطا در دانلود! "
@@ -290,6 +292,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
         time.sleep(10)
+
 
 
 
