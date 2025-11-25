@@ -11,6 +11,17 @@ from telebot import types
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def user_log(user, message, level='info'):
+    user_id = user.id if user else 'Unknown'
+    username = f"@{user.username}" if user and user.username else "NoUsername"
+    log_msg = f"UserID: {user_id} | Username: {username} | {message}"
+    
+    if level == 'error':
+        logger.error(log_msg)
+    else:
+        logger.info(log_msg)
+
+
 
 # توکن از متغیر محیطی می‌خونیم
 TOKEN = os.environ.get('BOT_TOKEN')
@@ -22,7 +33,7 @@ if not TOKEN:
 # ساخت ربات
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
-L.requset_timeout = 30
+L.request_timeout = 30
 L.context._session.headers.update({
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
 })
@@ -106,6 +117,7 @@ https://www.instagram.com/p/Cxample123/
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     """پاسخ به دستور /start"""
+    user_log(message.from_user, "دستور /start")
     bot.reply_to(message, get_welcome_text1(), parse_mode='Markdown')
     time.sleep(0.5)
     bot.reply_to(message, get_welcome_text2(), reply_markup=create_main_menu(['pay','help']))   
@@ -114,17 +126,20 @@ def send_welcome(message):
 @bot.message_handler(commands=['pay'])
 def send_pay(message):
     """پاسخ به دستور /pay"""
+    user_log(message.from_user, "دستور /pay")
     bot.reply_to(message, get_pay_text(), reply_markup=create_main_menu(['start','help']), parse_mode='Markdown')
 
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
     """پاسخ به دستور /help"""
+    user_log(message.from_user, "دستور /help")
     bot.reply_to(message, get_help_text(), reply_markup=create_main_menu(['start','pay']), parse_mode='Markdown')
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def handle_inline_clicks(call):
+    user_log(call.from_user, f"کلیک روی: {call.data}")
     if call.data == 'show_start':
         # پیام اول
         bot.send_message(call.message.chat.id, get_welcome_text1(), parse_mode='Markdown')
@@ -161,18 +176,25 @@ def extract_shortcode(instagram_url):
 @bot.message_handler(func=lambda message: True)
 def handle_instagram_link(message):
     """مدیریت لینک‌های اینستاگرام"""
+    user = message.from_user
+    user_log(user, f"ارسال لینک: {message.text[:30]}...")
+
+
     user_message = message.text.strip()
     
     if 'instagram.com' not in user_message:
+        user_log(user, "ارسال لینک غیر اینستاگرام", 'warning')
         bot.reply_to(message, "❌ لطفاً فقط لینک معتبر اینستاگرام ارسال کن!")
         return
     
     shortcode = extract_shortcode(user_message)
     if not shortcode:
+        user_log(user, "لینک معتبر نیست", 'warning')
         bot.reply_to(message, "❌ لینک معتبر نیست! مطمئن شو لینک رو درست کپی کردی")
         return
     
     processing_msg = bot.reply_to(message, "⏳ در حال دانلود... لطفاً صبر کن")
+    user_log(user, f"شروع دانلود برای shortcode: {shortcode}")
 
     try:
         # دانلود پست
@@ -250,18 +272,21 @@ def handle_instagram_link(message):
             
         # اطلاع پایان کار
         if success_count > 0:
+            user_log(user, f"دانلود موفق: {success_count} فایل برای پست {post.owner_username}")
             final_msg = f"✅ **دانلود کامل شد!**\n\n📦 **{success_count} فایل ارسال شد**\n👤 **@{post.owner_username}**\n❤️ **{post.likes} لایک**"
             bot.reply_to(message, final_msg, parse_mode='Markdown')
         else:
+            user_log(user, "هیچ فایلی ارسال نشد", 'error')
             bot.send_message(message.chat.id,"that worked3a")
             bot.reply_to(message, "❌ خطا در ارسال فایل‌ها!")
         
         
             
     except Exception as e:
+        user_log(user, f"خطا در دانلود: {str(e)}", 'error')
         logger.error(f"خطا در دانلود: {e}")
 
-    # پیام‌های کاربرپسند
+        # پیام‌های کاربرپسند
         error_msg = "❌ خطا در دانلود! "
         error_str = str(e).lower()
         
@@ -299,6 +324,7 @@ if __name__ == "__main__":
     except Exception as error:
         logger.error(f"خطا در اجرای ربات: {error}")
         time.sleep(10)
+
 
 
 
