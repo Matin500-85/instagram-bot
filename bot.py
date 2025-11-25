@@ -22,6 +22,10 @@ if not TOKEN:
 # ساخت ربات
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
+L.requset_timeout = 30
+L.context._session.header.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+})
 
 # for control
 execution_lock = threading.Lock()
@@ -256,14 +260,8 @@ def handle_instagram_link(message):
             
     except Exception as e:
         logger.error(f"خطا در دانلود: {e}")
-        
-    finally:
-        try:
-            bot.delete_message(message.chat.id, processing_msg.message_id)
-        except:
-            pass
-        
-        # پیام‌های کاربرپسند
+
+    # پیام‌های کاربرپسند
         error_msg = "❌ خطا در دانلود! "
         error_str = str(e).lower()
         
@@ -279,7 +277,14 @@ def handle_instagram_link(message):
             error_msg += "مطمئن شو پست public هست"
         
         bot.reply_to(message, error_msg)
-
+        
+    finally:
+        try:
+            bot.delete_message(message.chat.id, processing_msg.message_id)
+        except:
+            pass
+        
+        
 if __name__ == "__main__":
     logger.info("🚀 ربات در حال راه‌اندازی...")
     print("=" * 50)
@@ -294,6 +299,7 @@ if __name__ == "__main__":
     except Exception as error:
         logger.error(f"خطا در اجرای ربات: {error}")
         time.sleep(10)
+
 
 
 
