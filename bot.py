@@ -241,7 +241,7 @@ def handle_instagram_link(message):
         
         if os.path.exists(download_dir):
             import subprocess
-            shubprocess.run(['rm','-rf',download_dir], check=True)
+            subprocess.run(['rm','-rf',download_dir], check=True)
             
         # اطلاع پایان کار
         if success_count > 0:
@@ -290,6 +290,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
         time.sleep(10)
+
 
 
 
