@@ -240,7 +240,7 @@ def handle_instagram_link(message):
             bot.send_message(message.chat.id,"that worked1")
         
         if os.path.exists(download_dir):
-            os.rmdir(download_dir)
+            shutil.rmtree(download_dir)
         bot.send_message(message.chat.id,"that worked2")
         # اطلاع پایان کار
         if success_count > 0:
@@ -290,6 +290,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
         time.sleep(10)
+
 
 
 
