@@ -5,7 +5,7 @@ import telebot
 import threading
 import re
 import time
-from collections import defauultdict
+from collections import defaultdict
 from telebot import types
 
 
@@ -368,6 +368,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
