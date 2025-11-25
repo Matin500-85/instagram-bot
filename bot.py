@@ -34,9 +34,6 @@ if not TOKEN:
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader()
 L.request_timeout = 30
-L.context._session.headers.update({
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-})
 
 # for control
 execution_lock = threading.Lock()
@@ -277,7 +274,6 @@ def handle_instagram_link(message):
             bot.reply_to(message, final_msg, parse_mode='Markdown')
         else:
             user_log(user, "هیچ فایلی ارسال نشد", 'error')
-            bot.send_message(message.chat.id,"that worked3a")
             bot.reply_to(message, "❌ خطا در ارسال فایل‌ها!")
         
         
@@ -324,6 +320,7 @@ if __name__ == "__main__":
     except Exception as error:
         logger.error(f"خطا در اجرای ربات: {error}")
         time.sleep(10)
+
 
 
 
