@@ -290,9 +290,10 @@ if __name__ == "__main__":
         bot.remove_webhook()
         time.sleep(2)
         bot.polling(none_stop=True, interval=3, timeout=30)
-    except Exception as e:
-        logger.error(f"خطا در اجرای ربات: {e}")
+    except Exception as error:
+        logger.error(f"خطا در اجرای ربات: {error}")
         time.sleep(10)
+
 
 
 
