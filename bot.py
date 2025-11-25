@@ -169,6 +169,9 @@ def handle_instagram_link(message):
         return
     
     processing_msg = bot.reply_to(message, "⏳ در حال دانلود... لطفاً صبر کن")
+
+    error=None
+    download_dir = None
     
     try:
         # دانلود پست
@@ -256,6 +259,7 @@ def handle_instagram_link(message):
             
     except Exception as e:
         logger.error(f"خطا در دانلود: {e}")
+        error = e
     finally:
         try:
             bot.delete_message(message.chat.id, processing_msg.message_id)
@@ -293,6 +297,7 @@ if __name__ == "__main__":
     except Exception as error:
         logger.error(f"خطا در اجرای ربات: {error}")
         time.sleep(10)
+
 
 
 
