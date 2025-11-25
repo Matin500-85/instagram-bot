@@ -241,7 +241,7 @@ def handle_instagram_link(message):
         bot.send_message(message.chat.id,"that worked1b")
         if os.path.exists(download_dir):
             bot.send_message(message.chat.id,"that worked1c")
-            shutil.rmtree(download_dir)
+            shutil.rmtree(download_dir, ignore_errors=True)
             bot.send_message(message.chat.id,"that worked1d")
         bot.send_message(message.chat.id,"that worked2")
         # اطلاع پایان کار
@@ -292,6 +292,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"خطا در اجرای ربات: {e}")
         time.sleep(10)
+
 
 
 
