@@ -50,8 +50,6 @@ def user_log(user, message, level='info'):
 # ساخت ربات
 bot = telebot.TeleBot(TOKEN)
 L = instaloader.Instaloader(
-    sleep=True,                           # تاخیر بین درخواست‌ها
-    sleep_interval=10,                    # ۱۰ ثانیه تاخیر
     user_agent=random.choice(USER_AGENTS), # انتخاب تصادفی User-Agent
     request_timeout=60,                   # timeout بیشتر
     max_connection_attempts=2,            # تعداد تلاش کمتر
@@ -60,7 +58,7 @@ L = instaloader.Instaloader(
     post_metadata_txt_pattern="",         # غیرفعال کردن ذخیره متادیتا
     compress_json=False                   # غیرفعال کردن فشرده‌سازی
 )
-
+L.sleep = True
 
 
 # for control
@@ -400,6 +398,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
