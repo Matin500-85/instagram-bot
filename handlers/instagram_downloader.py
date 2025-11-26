@@ -11,23 +11,14 @@ from keyboards import menu, keyboard
 from telebot import types
 from utils.helpers import setup_logging, user_log
 from utils.message_router import route_message_by_content
+from utils.simpale_ua_rotator import get_fresh_user_agent
 
 logger = logging.getLogger(__name__)
 
 
 
-USER_AGENTS = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0",
-    "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.230 Mobile Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15"
-]
-
-
 L = instaloader.Instaloader(
-    user_agent=random.choice(USER_AGENTS), # انتخاب تصادفی User-Agent
+    user_agent=get_fresh_user_agent(), # انتخاب تصادفی User-Agent
     request_timeout=60,                   # timeout بیشتر
     max_connection_attempts=2,            # تعداد تلاش کمتر
     download_comments=False,              # عدم دانلود کامنت‌ها
@@ -140,6 +131,14 @@ def setup_instagram_handlers(bot):
         processing_users.add(user_id)
         
         try:
+
+            # 🔄 تغییر User-Agent آنلاین - این ۲ خط رو اضافه کن
+            fresh_ua = get_fresh_user_agent()
+            L.context.user_agent = fresh_ua
+            
+            user_log(message.from_user, f"🔄 User-Agent: {fresh_ua[:80]}...")
+
+            
             user = message.from_user
             user_log(user, f"ارسال لینک: {message.text[:30]}...")
 
@@ -352,6 +351,7 @@ def setup_instagram_handlers(bot):
                 bot.delete_message(message.chat.id, processing_msg.message_id)
             except:
                 pass
+
 
 
 
