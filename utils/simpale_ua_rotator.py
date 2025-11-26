@@ -7,7 +7,7 @@ def get_fresh_user_agent():
     try:
         response = requests.get(
             "https://jnrbsn.github.io/user-agents/user-agents.json",
-            timeout=5
+            timeout=3
         )
         agents = response.json()
         return random.choice(agents) if agents else get_fallback_ua()
