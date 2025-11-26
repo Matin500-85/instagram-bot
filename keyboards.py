@@ -44,6 +44,7 @@ def create_instagram_menu():
     """منوی اینستاگرام"""
     return create_keyboard(['back', 'help', 'pay'], row_width=1)
 
-def create_simple_back_menu():
+def create_back_menu():
     """منوی ساده بازگشت"""
     return create_keyboard(['back'], row_width=1)
+
