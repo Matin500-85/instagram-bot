@@ -169,7 +169,6 @@ def setup_instagram_handlers(bot):
             time.sleep(delay)
             
             # ✅ تغییر User-Agent برای هر درخواست
-            L.context.user_agent = random.choice(USER_AGENTS)
 
             
             
@@ -351,6 +350,7 @@ def setup_instagram_handlers(bot):
                 bot.delete_message(message.chat.id, processing_msg.message_id)
             except:
                 pass
+
 
 
 
