@@ -1,6 +1,9 @@
 
 import requests
 import random
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_fresh_user_agent():
     """استفاده از منبع جایگزین"""
