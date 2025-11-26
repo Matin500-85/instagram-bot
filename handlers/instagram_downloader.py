@@ -9,6 +9,7 @@ from collections import defaultdict
 import instaloader
 from keyboards import menu, keyboard
 from telebot import types
+from utils.helpers import setup_logging, user_log
 
 
 logger = logging.getLogger(__name__)
@@ -349,6 +350,7 @@ def setup_instagram_handlers(bot):
                 bot.delete_message(message.chat.id, processing_msg.message_id)
             except:
                 pass
+
 
 
 
