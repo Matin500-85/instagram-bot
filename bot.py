@@ -319,6 +319,7 @@ def handle_instagram_link(message):
                     with open(file_path, 'rb') as f:
                         bot.send_video(message.chat.id, f, 
                                      caption=current_caption,
+                                     parse_mode=None,
                                      reply_markup=create_main_menu(['pay']),
                                      timeout=60)
                         success_count += 1
@@ -326,6 +327,7 @@ def handle_instagram_link(message):
                     with open(file_path, 'rb') as f:
                         bot.send_photo(message.chat.id, f,
                                      caption=current_caption,
+                                     parse_mode=None,
                                      timeout=60)
                         success_count += 1
                 
@@ -398,6 +400,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
