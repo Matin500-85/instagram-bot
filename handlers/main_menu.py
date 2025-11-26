@@ -85,9 +85,7 @@ def setup_main_handlers(bot):
             bot.send_message(call.message.chat.id, get_welcome_text2(), reply_markup=keyboard(['instagram','youtube','pay','help']))
         
         bot.answer_callback_query(call.id)
-"""
------------------------------------------------------------------------------------------------------------------------------------
-"""
+
     @bot.message_handler(func=lambda message: message.text == "📸 دانلود از اینستاگرام")
     def handle_instagram_button(message):
         """وقتی کاربر روی دکمه اینستاگرام کلیک میکنه"""
@@ -164,4 +162,5 @@ def setup_main_handlers(bot):
             reply_markup=keyboard(['instagram','youtube','pay','help'])
         )
         
+
 
