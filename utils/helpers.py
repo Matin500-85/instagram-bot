@@ -1,8 +1,10 @@
 import logging
 
+logger = logging.getLogger(__name__)
+
 def setup_logging():
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+    
 
 def user_log(user, message, level='info'):
     user_id = user.id if user else 'Unknown'
@@ -13,3 +15,4 @@ def user_log(user, message, level='info'):
         logger.error(log_msg)
     else:
         logger.info(log_msg)
+
