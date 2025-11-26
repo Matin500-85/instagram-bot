@@ -7,7 +7,7 @@ import shutil
 from collections import defaultdict
 
 import instaloader
-from keyboards import create_instagram_menu, create_back_menu
+from keyboards import menu, keyboard
 from telebot import types
 
 
@@ -120,7 +120,7 @@ def setup_instagram_handlers(bot):
     def handle_instagram_callback(call):
         """وقتی کاربر روی دکمه اینستاگرام کلیک می‌کند"""
         bot.send_message(call.message.chat.id, get_instagram_instructions(), 
-                       reply_markup=create_instagram_menu(), parse_mode='Markdown')
+                       reply_markup=keyboard(['help','back']), parse_mode='Markdown')
         bot.answer_callback_query(call.id)
 
 
@@ -144,19 +144,19 @@ def setup_instagram_handlers(bot):
 
             if not is_valid_instagram_url(user_message):
                 user_log(user, "ارسال لینک غیر اینستاگرام", 'warning')
-                bot.reply_to(message, "❌ لطفاً فقط لینک معتبر اینستاگرام ارسال کن!")
+                bot.reply_to(message, "❌ لطفاً فقط لینک معتبر اینستاگرام ارسال کن!" ,reply_markup=keyboard(['help','back']))
                 return
 
             if not check_rate_limit(user_id, limit=3, window=60):
                 user_log(user, "محدودیت نرخ درخواست", 'warning')
-                bot.reply_to(message, "🚫 تعداد درخواست‌های شما زیاد است! لطفاً ۱ دقیقه صبر کنید.")
+                bot.reply_to(message, "🚫 تعداد درخواست‌های شما زیاد است! لطفاً ۱ دقیقه صبر کنید.",reply_markup=keyboard(['back']))
                 return
 
 
             shortcode = extract_shortcode(user_message)
             if not shortcode:
                 user_log(user, "لینک معتبر نیست", 'warning')
-                bot.reply_to(message, "❌ لینک معتبر نیست! مطمئن شو لینک رو درست کپی کردی")
+                bot.reply_to(message, "❌ لینک معتبر نیست! مطمئن شو لینک رو درست کپی کردی", reply_markup=keyboard(['help','back']))
                 return
 
             processing_msg = bot.reply_to(message, "⏳ در حال دانلود... لطفاً صبر کن")
@@ -189,19 +189,19 @@ def setup_instagram_handlers(bot):
             except instaloader.exceptions.PrivateError:
                 # برای استوری‌ها پیام متفاوت بده
                 if '/stories/' in user_message:
-                    bot.reply_to(message, "❌ این استوری خصوصی است یا نیاز به لاگین دارد")
+                    bot.reply_to(message, "❌ این استوری خصوصی است یا نیاز به لاگین دارد" , reply_markup=keyboard(['back']))
                 else:
-                    bot.reply_to(message, "❌ این پست خصوصی است و قابل دانلود نیست")
+                    bot.reply_to(message, "❌ این پست خصوصی است و قابل دانلود نیست" , reply_markup=keyboard(['back']))
                 return
             except instaloader.exceptions.QueryReturnedNotFoundException:
-                bot.reply_to(message, "❌ پست پیدا نشد! ممکنه حذف شده باشه")
+                bot.reply_to(message, "❌ پست پیدا نشد! ممکنه حذف شده باشه" , reply_markup=keyboard(['back']))
                 return
             except instaloader.exceptions.ConnectionException:
-                bot.reply_to(message, "🔌 مشکل اتصال به اینستاگرام! لطفاً دوباره تلاش کن")
+                bot.reply_to(message, "🔌 مشکل اتصال به اینستاگرام! لطفاً دوباره تلاش کن", reply_markup=keyboard(['back']))
                 return
             except Exception as e:
                 user_log(message.from_user, f"خطای ناشناخته instaloader: {e}", 'error')
-                bot.reply_to(message, "❌ خطا در دریافت اطلاعات پست")
+                bot.reply_to(message, "❌ خطا در دریافت اطلاعات پست", reply_markup=keyboard(['back']))
                 return
         
             # چک کردن اگر استوری هست
@@ -241,7 +241,7 @@ def setup_instagram_handlers(bot):
             media_files = video_files + image_files
             
             if not media_files:
-                bot.reply_to(message, "❌ محتوایی برای دانلود پیدا نشد!")
+                bot.reply_to(message, "❌ محتوایی برای دانلود پیدا نشد!", reply_markup=keyboard(['help','back']))
                 return
 
             # محدودیت حجم و تعداد فایل - اضافه شده
@@ -255,12 +255,12 @@ def setup_instagram_handlers(bot):
                     total_size += os.path.getsize(file_path)
             
             if total_size > MAX_FILE_SIZE:
-                bot.reply_to(message, "❌ حجم فایل بسیار بزرگ است! (بیشتر از 80MB)")
+                bot.reply_to(message, "❌ حجم فایل بسیار بزرگ است! (بیشتر از 80MB)" , reply_markup=keyboard(['back']))
                 shutil.rmtree(download_dir)
                 return
             
             if len(media_files) > MAX_FILE_COUNT:
-                bot.reply_to(message, "❌ تعداد فایل‌ها بسیار زیاد است! (بیشتر از 10 فایل)")
+                bot.reply_to(message, "❌ تعداد فایل‌ها بسیار زیاد است! (بیشتر از 10 فایل)" , reply_markup=keyboard(['back']))
                 shutil.rmtree(download_dir)
                 return
 
@@ -281,7 +281,7 @@ def setup_instagram_handlers(bot):
                             bot.send_video(message.chat.id, f, 
                                         caption=current_caption,
                                         parse_mode=None,
-                                        reply_markup=create_main_menu(['pay']),
+                                        reply_markup=menu(['pay']),
                                         timeout=60)
                             success_count += 1
                     else:
@@ -289,6 +289,7 @@ def setup_instagram_handlers(bot):
                             bot.send_photo(message.chat.id, f,
                                         caption=current_caption,
                                         parse_mode=None,
+                                        reply_markup=keyboard(['pay','back']),
                                         timeout=60)
                             success_count += 1
                     
@@ -315,10 +316,10 @@ def setup_instagram_handlers(bot):
                     user_log(user, f"دانلود موفق: {success_count} فایل برای پست {post.owner_username}")
                     final_msg = f"✅ **دانلود کامل شد!**\n\n📦 **{success_count} فایل ارسال شد**\n👤 **@{post.owner_username}**\n❤️ **{post.likes} لایک**"
                 
-                bot.reply_to(message, final_msg, parse_mode='Markdown')
+                bot.reply_to(message, final_msg, parse_mode='Markdown',reply_markup=keyboard(['pay','back']),)
             else:
                 user_log(user, "هیچ فایلی ارسال نشد", 'error')
-                bot.reply_to(message, "❌ خطا در ارسال فایل‌ها!")
+                bot.reply_to(message, "❌ خطا در ارسال فایل‌ها!",reply_markup=keyboard(['back']),)
             
             
                 
@@ -341,12 +342,13 @@ def setup_instagram_handlers(bot):
             else:
                 error_msg += "مطمئن شو پست public هست"
             
-            bot.reply_to(message, error_msg)
+            bot.reply_to(message, error_msg,reply_markup=keyboard(['help','back','pay']),)
             
         finally:
             try:
                 bot.delete_message(message.chat.id, processing_msg.message_id)
             except:
                 pass
+
 
 
