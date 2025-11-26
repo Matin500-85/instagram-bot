@@ -77,13 +77,14 @@ def setup_main_handlers(bot):
                            reply_markup=keyboard(['back']), parse_mode='Markdown')
         elif call.data == 'show_help':
             bot.send_message(call.message.chat.id, get_help_text(), 
-                           reply_markup=keyboard(['back'])), parse_mode='Markdown')
+                           reply_markup=keyboard(['back']), parse_mode='Markdown')
         elif call.data == 'back_to_main':
             bot.send_message(call.message.chat.id, get_welcome_text(), parse_mode='Markdown')
             time.sleep(0.5)
             bot.send_message(call.message.chat.id, get_welcome_text2(), reply_markup=keyboard(['instagram','youtube','pay','help']))
         
         bot.answer_callback_query(call.id)
+
 
 
 
