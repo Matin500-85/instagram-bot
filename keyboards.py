@@ -1,106 +1,91 @@
 from telebot import types
 
-# دیکشنری مرکزی تمام دکمه‌ها
-ALL_BUTTONS = {
-    # دکمه‌های اصلی
+# ==================== مرجع دکمه‌های اینلاین ====================
+INLINE_BUTTONS = {
     "start": types.InlineKeyboardButton("🏠 شروع", callback_data='show_start'),
     "instagram": types.InlineKeyboardButton("📸 اینستاگرام", callback_data='instagram_download'),
-    "youtube": types.InlineKeyboardButton("🎥 یوتیوب", callback_data='youtube_download'),
+    "youtube": types.InlineKeyboardButton("🎥 یوتیوب", callback_data='youtube_download'), 
     "other": types.InlineKeyboardButton("📱 سایر شبکه‌ها", callback_data='other_download'),
     "pay": types.InlineKeyboardButton("💰 حمایت مالی", callback_data='show_pay'),
     "help": types.InlineKeyboardButton("📖 راهنما", callback_data='show_help'),
-    
-    # دکمه‌های عملیاتی
     "back": types.InlineKeyboardButton("🔙 بازگشت", callback_data='back_to_main'),
+    "quick_download": types.InlineKeyboardButton("🚀 دانلود سریع", callback_data='quick_download'),
+    "video_tutorial": types.InlineKeyboardButton("🎬 آموزش ویدیویی", callback_data='video_tutorial'),
+    "support": types.InlineKeyboardButton("👨‍💻 پشتیبانی", url='https://t.me/Matin500_85'),
+    "instagram_info": types.InlineKeyboardButton("📸 اینستاگرام", callback_data='instagram_info'),
+    "youtube_info": types.InlineKeyboardButton("🎥 یوتیوب", callback_data='youtube_info'),
+    "website": types.InlineKeyboardButton("🌐 وبسایت", url='https://example.com'),
 }
 
+# ==================== مرجع دکمه‌های ثابت ====================
+REPLY_BUTTONS = {
+    "instagram": types.KeyboardButton("📸 دانلود از اینستاگرام"),
+    "youtube": types.KeyboardButton("🎥 دانلود از یوتیوب"),
+    "other": types.KeyboardButton("📱 سایر شبکه‌ها"),
+    "pay": types.KeyboardButton("💰 حمایت مالی"), 
+    "help": types.KeyboardButton("📖 راهنما"),
+    "back": types.KeyboardButton("🔙 بازگشت به منوی اصلی"),
+    "refresh": types.KeyboardButton("🔄 بروزرسانی"),
+    "settings": types.KeyboardButton("⚙️ تنظیمات"),
+}
 
-
-def create_keyboard(button_keys, row_width=2):
+# ==================== تابع اصلی برای اینلاین ====================
+def menu(button_keys, row_width=2):
     """
-    ایجاد کیبورد دلخواه از دکمه‌های مرکزی
+    ساخت کیبورد اینلاین از مرجع INLINE_BUTTONS
+    
+    Args:
+        button_keys (list): لیست کلیدهای دکمه‌ها از INLINE_BUTTONS
+        row_width (int): تعداد دکمه در هر ردیف (پیش‌فرض: ۲)
+    
+    Returns:
+        types.InlineKeyboardMarkup: کیبورد اینلاین آماده
     """
     markup = types.InlineKeyboardMarkup(row_width=row_width)
     
-    # فیلتر کردن دکمه‌های معتبر
+    # پیدا کردن دکمه‌های معتبر
     valid_buttons = []
     for key in button_keys:
-        if key in ALL_BUTTONS:
-            valid_buttons.append(ALL_BUTTONS[key])
+        if key in INLINE_BUTTONS:
+            valid_buttons.append(INLINE_BUTTONS[key])
         else:
-            print(f"⚠️ هشدار: دکمه '{key}' پیدا نشد!")
+            print(f"⚠️ هشدار: دکمه اینلاین '{key}' پیدا نشد!")
     
-    # چیدمان دکمه‌ها
+    # چیدن دکمه‌ها در ردیف‌ها
     for i in range(0, len(valid_buttons), row_width):
         row = valid_buttons[i:i + row_width]
         markup.add(*row)
     
     return markup
 
-# کیبوردهای از پیش تعریف شده (برای راحتی)
-def create_main_menu():
-    """منوی اصلی"""
-    return create_keyboard(['instagram', 'youtube', 'other', 'pay', 'help'], row_width=2)
-
-def create_instagram_menu():
-    """منوی اینستاگرام"""
-    return create_keyboard(['back', 'help', 'pay'], row_width=1)
-
-def create_back_menu():
-    """منوی ساده بازگشت"""
-    return create_keyboard(['back'], row_width=1)
-"""
-------------------------------------------------------------------------------------------------------
-"""
-
-def create_main_keyboard():
+# ==================== تابع اصلی برای ثابت ====================
+def keyboard(button_keys, row_width=2):
     """
-    کیبورد اصلی - همه دکمه‌ها به جز بازگشت
-    دلیل: در صفحه اصلی هستیم، نیازی به دکمه بازگشت نداریم
+    ساخت کیبورد ثابت از مرجع REPLY_BUTTONS
+    
+    Args:
+        button_keys (list): لیست کلیدهای دکمه‌ها از REPLY_BUTTONS  
+        row_width (int): تعداد دکمه در هر ردیف (پیش‌فرض: ۲)
+    
+    Returns:
+        types.ReplyKeyboardMarkup: کیبورد ثابت آماده
     """
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    markup = types.ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        row_width=row_width
+    )
     
-    # دکمه‌های اصلی - ردیف اول
-    btn_instagram = types.KeyboardButton("📸 دانلود از اینستاگرام")
-    btn_youtube = types.KeyboardButton("🎥 دانلود از یوتیوب")
+    # پیدا کردن دکمه‌های معتبر
+    valid_buttons = []
+    for key in button_keys:
+        if key in REPLY_BUTTONS:
+            valid_buttons.append(REPLY_BUTTONS[key])
+        else:
+            print(f"⚠️ هشدار: دکمه ثابت '{key}' پیدا نشد!")
     
-    # دکمه‌های اصلی - ردیف دوم  
-    btn_other = types.KeyboardButton("📱 سایر شبکه‌ها")
-    
-    # دکمه‌های کمکی - ردیف سوم
-    btn_help = types.KeyboardButton("📖 راهنما")
-    btn_pay = types.KeyboardButton("💰 حمایت مالی")
-    
-    # چیدمان دکمه‌ها
-    markup.add(btn_instagram, btn_youtube)  # ردیف اول
-    markup.add(btn_other)                   # ردیف دوم
-    markup.add(btn_help, btn_pay)           # ردیف سوم
+    # چیدن دکمه‌ها در ردیف‌ها
+    for i in range(0, len(valid_buttons), row_width):
+        row = valid_buttons[i:i + row_width]
+        markup.add(*row)
     
     return markup
-
-def create_back_only_keyboard():
-    """
-    کیبورد فقط با دکمه بازگشت
-    دلیل: در صفحات راهنما و حمایت مالی، فقط می‌خوایم کاربر بتونه برگرده
-    """
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-    btn_back = types.KeyboardButton("🔙 بازگشت به منوی اصلی")
-    markup.add(btn_back)
-    return markup
-
-def create_instagram_keyboard():
-    """
-    کیبورد مخصوص اینستاگرام - بازگشت + راهنما
-    دلیل: وقتی کاربر تو بخش اینستاگرامه، ممکنه نیاز به راهنما داشته باشه
-    ولی دیگه نیاز به دکمه‌های دیگر نیست
-    """
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    
-    btn_back = types.KeyboardButton("🔙 بازگشت به منوی اصلی")
-    btn_help = types.KeyboardButton("📖 راهنما")
-    
-    markup.add(btn_back)
-    markup.add(btn_help)
-    
-    return markup
-
