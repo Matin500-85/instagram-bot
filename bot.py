@@ -8,6 +8,8 @@ from utils.helpers import setup_logging, user_log
 from handlers.main_menu import setup_main_handlers
 from handlers.instagram_downloader import setup_instagram_handlers
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # توکن از متغیر محیطی می‌خونیم
 TOKEN = os.environ.get('BOT_TOKEN')
@@ -54,4 +56,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
