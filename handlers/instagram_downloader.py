@@ -11,14 +11,14 @@ from keyboards import menu, keyboard
 from telebot import types
 from utils.helpers import setup_logging, user_log
 from utils.message_router import route_message_by_content
-from utils.simpale_ua_rotator import get_fresh_user_agent
+from utils.simple_ua_rotator import get_fresh_user_agent
 
 logger = logging.getLogger(__name__)
 
 
 
 L = instaloader.Instaloader(
-    user_agent=get_fresh_user_agent(), # انتخاب تصادفی User-Agent
+    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...", # انتخاب تصادفی User-Agent
     request_timeout=60,                   # timeout بیشتر
     max_connection_attempts=2,            # تعداد تلاش کمتر
     download_comments=False,              # عدم دانلود کامنت‌ها
@@ -351,6 +351,7 @@ def setup_instagram_handlers(bot):
                 bot.delete_message(message.chat.id, processing_msg.message_id)
             except:
                 pass
+
 
 
 
