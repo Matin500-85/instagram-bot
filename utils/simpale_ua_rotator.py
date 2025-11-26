@@ -3,16 +3,27 @@ import requests
 import random
 
 def get_fresh_user_agent():
-    """دریافت یک User-Agent تازه از منبع آنلاین"""
+    """استفاده از منبع جایگزین"""
     try:
+        # منبع جایگزین
         response = requests.get(
-            "https://jnrbsn.github.io/user-agents/user-agents.json",
+            "https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt",
             timeout=3
         )
-        agents = response.json()
-        return random.choice(agents) if agents else get_fallback_ua()
-    except:
+        
+        # پردازش فایل متنی
+        agents = response.text.split('\n')
+        agents = [ua.strip() for ua in agents if ua.strip() and 'Mozilla' in ua]
+        
+        if agents:
+            return random.choice(agents)
+        else:
+            return get_fallback_ua()
+            
+    except Exception as e:
+        logger.error(f"خطا: {e}")
         return get_fallback_ua()
+
 
 def get_fallback_ua():
     """دریافت User-Agent آفلاین"""
