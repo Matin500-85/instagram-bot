@@ -6,6 +6,7 @@ import threading
 import re
 import time
 import random
+import shutil
 from collections import defaultdict
 from telebot import types
 
@@ -198,21 +199,37 @@ def is_valid_instagram_url(url):
     return bool(re.match(pattern, url.strip()))
 
 
+
 def extract_shortcode(instagram_url):
-    """استخراج shortcode از لینک اینستاگرام"""
+    """استخراج shortcode از لینک اینستاگرام - با پشتیبانی از استوری"""
     try:
-        if '/p/' in instagram_url:
-            return instagram_url.split('/p/')[1].split('/')[0]
-        elif '/reel/' in instagram_url:
-            return instagram_url.split('/reel/')[1].split('/')[0]
-        elif '/stories/' in instagram_url:
-            parts = instagram_url.split('/stories/')[1].split('/')
-            return parts[1] if len(parts) > 1 else None
+        url = instagram_url.strip()
+        
+        # استخراج بر اساس نوع لینک
+        if '/p/' in url:
+            shortcode = url.split('/p/')[1].split('/')[0].split('?')[0]
+        elif '/reel/' in url:
+            shortcode = url.split('/reel/')[1].split('/')[0].split('?')[0]
+        elif '/stories/' in url:
+            # برای استوری: username/timestamp/
+            parts = url.split('/stories/')[1].split('/')
+            if len(parts) >= 2:
+                shortcode = parts[1]  # timestamp part
+            else:
+                return None
         else:
             return None
+        
+        # اعتبارسنجی shortcode استخراج شده
+        if shortcode and re.match(r'^[a-zA-Z0-9_-]{5,50}$', shortcode):
+            return shortcode
+        else:
+            return None
+            
     except Exception as e:
         logger.error(f"خطا در استخراج shortcode: {e}")
         return None
+
 
 
 
@@ -266,12 +283,38 @@ def handle_instagram_link(message):
         
     finally:
         # کاربر رو از لیست حذف کن حتی اگر خطا اتفاق افتاد
-        if user_id in processing_users:
-            processing_users.remove(user_id)
+        processing_users.discard(user_id)
 
     try:
         # دانلود پست
-        post = instaloader.Post.from_shortcode(L.context, shortcode)
+        try:
+            post = instaloader.Post.from_shortcode(L.context, shortcode)
+        except instaloader.exceptions.PrivateError:
+            # برای استوری‌ها پیام متفاوت بده
+            if '/stories/' in user_message:
+                bot.reply_to(message, "❌ این استوری خصوصی است یا نیاز به لاگین دارد")
+            else:
+                bot.reply_to(message, "❌ این پست خصوصی است و قابل دانلود نیست")
+            return
+        except instaloader.exceptions.QueryReturnedNotFoundException:
+            bot.reply_to(message, "❌ پست پیدا نشد! ممکنه حذف شده باشه")
+            return
+        except instaloader.exceptions.ConnectionException:
+            bot.reply_to(message, "🔌 مشکل اتصال به اینستاگرام! لطفاً دوباره تلاش کن")
+            return
+        except Exception as e:
+            logger.error(f"خطای ناشناخته instaloader: {e}")
+            bot.reply_to(message, "❌ خطا در دریافت اطلاعات پست")
+            return
+    
+        # چک کردن اگر استوری هست
+        is_story = '/stories/' in user_message
+        if is_story:
+            # برای استوری‌ها پیام متفاوت بدیم
+            bot.edit_message_text("📱 در حال دانلود استوری...", 
+                                message.chat.id, processing_msg.message_id)
+
+
         
         # ساخت کپشن پیشرفته (قبل از دانلود)
         try:
@@ -303,6 +346,27 @@ def handle_instagram_link(message):
         if not media_files:
             bot.reply_to(message, "❌ محتوایی برای دانلود پیدا نشد!")
             return
+
+        # محدودیت حجم و تعداد فایل - اضافه شده
+        MAX_FILE_SIZE = 80 * 1024 * 1024  # 50 مگابایت
+        MAX_FILE_COUNT = 10
+        
+        total_size = 0
+        for file in media_files:
+            file_path = os.path.join(download_dir, file)
+            if os.path.exists(file_path):
+                total_size += os.path.getsize(file_path)
+        
+        if total_size > MAX_FILE_SIZE:
+            bot.reply_to(message, "❌ حجم فایل بسیار بزرگ است! (بیشتر از 80MB)")
+            shutil.rmtree(download_dir)
+            return
+        
+        if len(media_files) > MAX_FILE_COUNT:
+            bot.reply_to(message, "❌ تعداد فایل‌ها بسیار زیاد است! (بیشتر از 10 فایل)")
+            shutil.rmtree(download_dir)
+            return
+
         
         # ارسال فایل‌ها به کاربر
         success_count = 0
@@ -342,13 +406,18 @@ def handle_instagram_link(message):
         
         
         if os.path.exists(download_dir):
-            import subprocess
-            subprocess.run(['rm','-rf',download_dir], check=True)
+            shutil.rmtree(download_dir)
             
         # اطلاع پایان کار
         if success_count > 0:
-            user_log(user, f"دانلود موفق: {success_count} فایل برای پست {post.owner_username}")
-            final_msg = f"✅ **دانلود کامل شد!**\n\n📦 **{success_count} فایل ارسال شد**\n👤 **@{post.owner_username}**\n❤️ **{post.likes} لایک**"
+            is_story = '/stories/' in user_message
+            if is_story:
+                user_log(user, f"دانلود موفق: {success_count} فایل برای استوری {post.owner_username}")
+                final_msg = f"✅ **دانلود استوری کامل شد!**\n\n📦 **{success_count} فایل ارسال شد**\n👤 **@{post.owner_username}**"
+            else:
+                user_log(user, f"دانلود موفق: {success_count} فایل برای پست {post.owner_username}")
+                final_msg = f"✅ **دانلود کامل شد!**\n\n📦 **{success_count} فایل ارسال شد**\n👤 **@{post.owner_username}**\n❤️ **{post.likes} لایک**"
+            
             bot.reply_to(message, final_msg, parse_mode='Markdown')
         else:
             user_log(user, "هیچ فایلی ارسال نشد", 'error')
@@ -400,6 +469,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
