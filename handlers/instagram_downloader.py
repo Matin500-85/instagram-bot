@@ -10,7 +10,7 @@ import instaloader
 from keyboards import menu, keyboard
 from telebot import types
 from utils.helpers import setup_logging, user_log
-
+from utils.message_router import route_message_by_content
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ def setup_instagram_handlers(bot):
         bot.answer_callback_query(call.id)
 
 
-    @bot.message_handler(func=lambda message: True)
+    @bot.message_handler(func=lambda message: route_message_by_content(message) == 'instagram_link' )
     def handle_instagram_link(message):
         """مدیریت لینک‌های اینستاگرام"""
         user_id = message.from_user.id
@@ -352,6 +352,7 @@ def setup_instagram_handlers(bot):
                 bot.delete_message(message.chat.id, processing_msg.message_id)
             except:
                 pass
+
 
 
 
