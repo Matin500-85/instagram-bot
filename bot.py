@@ -195,7 +195,7 @@ def handle_inline_clicks(call):
 
 def is_valid_instagram_url(url):
     """بررسی معتبر بودن لینک اینستاگرام"""
-    pattern = r'^https?://(www\.)?instagram\.com/(p|reel|stories)/[a-zA-Z0-9_-]+/?.*$'
+    pattern = r'^https?://(www\.)?instagram\.com/(p|reel|stories)/[a-zA-Z0-9_\-./?=]+$'
     return bool(re.match(pattern, url.strip()))
 
 
@@ -282,6 +282,13 @@ def handle_instagram_link(message):
         
         
     finally:
+        # پاک‌سازی پوشه موقت در صورت وجود
+        try:
+            if 'download_dir' in locals() and os.path.exists(download_dir):
+                shutil.rmtree(download_dir, ignore_errors=True)
+        except Exception as e:
+            logger.error(f"خطا در پاک‌سازی پوشه: {e}")
+
         # کاربر رو از لیست حذف کن حتی اگر خطا اتفاق افتاد
         processing_users.discard(user_id)
 
@@ -303,7 +310,7 @@ def handle_instagram_link(message):
             bot.reply_to(message, "🔌 مشکل اتصال به اینستاگرام! لطفاً دوباره تلاش کن")
             return
         except Exception as e:
-            logger.error(f"خطای ناشناخته instaloader: {e}")
+            user_log(message.from_user, f"خطای ناشناخته instaloader: {e}", 'error')
             bot.reply_to(message, "❌ خطا در دریافت اطلاعات پست")
             return
     
@@ -469,6 +476,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
