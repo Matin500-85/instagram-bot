@@ -23,6 +23,18 @@ USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/120.0"
 ]
 
+L = instaloader.Instaloader(
+    user_agent=random.choice(USER_AGENTS), # انتخاب تصادفی User-Agent
+    request_timeout=60,                   # timeout بیشتر
+    max_connection_attempts=2,            # تعداد تلاش کمتر
+    download_comments=False,              # عدم دانلود کامنت‌ها
+    save_metadata=False,                  # عدم ذخیره متادیتا
+    post_metadata_txt_pattern="",         # غیرفعال کردن ذخیره متادیتا
+    compress_json=False                   # غیرفعال کردن فشرده‌سازی
+)
+L.sleep = True
+
+
 
 def get_instagram_instructions():
     return """
@@ -336,4 +348,5 @@ def setup_instagram_handlers(bot):
                 bot.delete_message(message.chat.id, processing_msg.message_id)
             except:
                 pass
+
 
