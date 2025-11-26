@@ -1,13 +1,14 @@
 import os
 import logging
-import instaloader
-import telebot
-import threading
 import re
 import time
 import random
 import shutil
+import threading
 from collections import defaultdict
+
+import instaloader
+import telebot
 from telebot import types
 
 
@@ -242,11 +243,10 @@ def handle_instagram_link(message):
     if user_id in processing_users:
         bot.reply_to(message, "⏳ در حال پردازش درخواست قبلی شما... لطفاً صبر کنید")
         return
+    # کاربر رو به لیست اضافه کن
+    processing_users.add(user_id)
     
     try:
-        # کاربر رو به لیست اضافه کن
-        processing_users.add(user_id)
-        
         user = message.from_user
         user_log(user, f"ارسال لینک: {message.text[:30]}...")
 
@@ -476,6 +476,7 @@ if __name__ == "__main__":
         except Exception as error:
             logger.error(f"خطا در اجرای ربات: {error}")
             time.sleep(10)
+
 
 
 
