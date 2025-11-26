@@ -54,15 +54,6 @@ def get_help_text():
 https://www.instagram.com/p/Cxample123/
     """
 
-stop_requests= set()
-
-# تابع کمکی
-def check_and_clear_stop(user_id):
-    """بررسی و پاک کردن توقف"""
-    if user_id in stop_requests:
-        stop_requests.discard(user_id)
-        return True
-    return False
 
 
 def setup_main_handlers(bot):
@@ -73,15 +64,6 @@ def setup_main_handlers(bot):
         bot.reply_to(message, get_welcome_text(), parse_mode='Markdown')
         time.sleep(0.5)
         bot.reply_to(message, get_welcome_text2(), reply_markup=keyboard(['instagram','youtube','pay','help']))
-
-
-    @bot.message_handler(commands=['stop', 'توقف', 'cancel', 'لغو'])
-    def handle_stop(message):
-        """دستور توقف ساده"""
-        user_id = message.from_user.id
-        stop_requests.add(user_id)
-        bot.reply_to(message,"🛑 **توقف ثبت شد!**\n\n""عملیات بعدی لغو خواهد شد...",reply_markup=keyboard(['instagram', 'youtube', 'help']))
-
 
     @bot.message_handler(commands=['pay'])
     def send_pay(message):
@@ -182,6 +164,7 @@ def setup_main_handlers(bot):
             reply_markup=keyboard(['instagram','youtube','pay','help'])
         )
         
+
 
 
 
