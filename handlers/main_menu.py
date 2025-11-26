@@ -60,28 +60,29 @@ def setup_main_handlers(bot):
     def send_welcome(message):
         bot.reply_to(message, get_welcome_text(), parse_mode='Markdown')
         time.sleep(0.5)
-        bot.reply_to(message, get_welcome_text2(), reply_markup=create_main_menu())
+        bot.reply_to(message, get_welcome_text2(), reply_markup=create_main_keyboard())
 
     @bot.message_handler(commands=['pay'])
     def send_pay(message):
-        bot.reply_to(message, get_pay_text(), reply_markup=create_back_menu(), parse_mode='Markdown')
+        bot.reply_to(message, get_pay_text(), reply_markup=create_back_only_keyboard(), parse_mode='Markdown')
 
     @bot.message_handler(commands=['help'])
     def send_help(message):
-        bot.reply_to(message, get_help_text(), reply_markup=create_back_menu(), parse_mode='Markdown')
+        bot.reply_to(message, get_help_text(), reply_markup=create_back_only_keyboard(), parse_mode='Markdown')
 
     @bot.callback_query_handler(func=lambda call: call.data in ['show_pay', 'show_help', 'back_to_main'])
     def handle_main_callbacks(call):
         if call.data == 'show_pay':
             bot.send_message(call.message.chat.id, get_pay_text(), 
-                           reply_markup=create_back_menu(), parse_mode='Markdown')
+                           reply_markup=create_back_only_keyboard(), parse_mode='Markdown')
         elif call.data == 'show_help':
             bot.send_message(call.message.chat.id, get_help_text(), 
-                           reply_markup=create_back_menu(), parse_mode='Markdown')
+                           reply_markup=create_back_only_keyboard(), parse_mode='Markdown')
         elif call.data == 'back_to_main':
             bot.send_message(call.message.chat.id, get_welcome_text(), parse_mode='Markdown')
             time.sleep(0.5)
-            bot.send_message(call.message.chat.id, get_welcome_text2(), reply_markup=create_main_menu())
+            bot.send_message(call.message.chat.id, get_welcome_text2(), reply_markup=create_main_keyboard())
         
         bot.answer_callback_query(call.id)
+
 
