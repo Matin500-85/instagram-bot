@@ -1,2 +1,5 @@
 pytelegrambotapi
+
 instaloader
+
+pytube==15.0.0
