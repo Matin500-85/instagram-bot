@@ -7,6 +7,7 @@ import telebot
 from utils.helpers import setup_logging, user_log
 from handlers.main_menu import setup_main_handlers
 from handlers.instagram_downloader import setup_instagram_handlers
+from handlers.youtube_downloader import setup_youtube_handlers
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ def main():
     # تنظیم تمام هندلرها
     setup_main_handlers(bot)
     setup_instagram_handlers(bot)
+    setup_youtube_handlers(bot)
     
     # هندلر برای دکمه‌های دیگر (برای آینده)
     @bot.callback_query_handler(func=lambda call: call.data in ['youtube_download', 'other_download'])
@@ -56,5 +58,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
