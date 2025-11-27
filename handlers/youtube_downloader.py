@@ -82,26 +82,23 @@ def setup_youtube_handlers(bot):
                 # فرمت کردن حجم فایل
                 filesize_mb = result['filesize'] // (1024 * 1024) if result['filesize'] else 0
                 
-                bot.edit_message_text(
-                    f"✅ **آماده برای دانلود!**\n\n"
+                # 🔥 این بخش جدید رو جایگزین کن:
+                success_text = (
+                    f"✅ **لینک دانلود آماده!**\n\n"
                     f"📹 **{result['video_info']['title']}**\n"
                     f"⏱️ مدت: {duration_str}\n"
                     f"👁️ بازدید: {result['video_info']['views']:,}\n"
                     f"👤 سازنده: {result['video_info']['author']}\n"
-                    f"💾 حجم: {filesize_mb} مگابایت",
-                    message.chat.id,
-                    processing_msg.message_id,
-                    parse_mode='Markdown'
+                    f"💾 حجم: {filesize_mb} مگابایت\n\n"
+                    f"🔗 **لینک دانلود مستقیم:**\n"
+                    f"`{result['download_url']}`\n\n"
+                    f"📥 می‌تونی این لینک رو در دانلود منیجر کپی کنی"
                 )
                 
-                # ارسال ویدیو
-                bot.send_video(
-                    message.chat.id,
-                    result['download_url'],
-                    caption=result['video_info']['title'],
-                    reply_markup=keyboard(['back', 'pay']),
-                    timeout=60
+                bot.edit_message_text(success_text,message.chat.id,processing_msg.message_id,parse_mode='Markdown',
+                    reply_markup=keyboard(['back', 'pay', 'help'])
                 )
+
                 
             else:
                 user_log(message.from_user, f"خطا در دانلود یوتیوب: {result['error']}", 'error')
