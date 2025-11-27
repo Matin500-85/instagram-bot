@@ -96,7 +96,7 @@ def setup_youtube_handlers(bot):
                 )
                 
                 bot.edit_message_text(success_text,message.chat.id,processing_msg.message_id,parse_mode='Markdown',
-                    reply_markup=keyboard(['back', 'pay', 'help'])
+                    reply_markup=menu(['back', 'pay', 'help'])
                 )
 
                 
@@ -108,7 +108,7 @@ def setup_youtube_handlers(bot):
                     "لطفاً لینک معتبر یوتیوب ارسال کنید:",
                     message.chat.id,
                     processing_msg.message_id,
-                    reply_markup=keyboard(['back', 'help'])
+                    reply_markup=menu(['back', 'help'])
                 )
                 
         except Exception as e:
